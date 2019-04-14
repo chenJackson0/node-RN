@@ -10,7 +10,13 @@ let blogSchema = new mongoose.Schema({
     addCommentNum : {type : Number},
     focusOn : {type : String},
     focusOnFlag : {type : Boolean},
-    address : {type : String}
+    address : {type : String},
+    nickName : {type : String},
+    webSite : {type : String},
+    personalResume : {type : String},
+    email : {type : String},
+    phone : {type : String},
+    sex : {type : String}
 },{
     autoIndex: false
 });

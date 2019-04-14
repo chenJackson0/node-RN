@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var publishedBase = require('../mongodb/schema/publishedBase')
 var registeredUser = require('../mongodb/schema/registeredUser')
+var collectionItem = require('../mongodb/schema/collectionItem')
 //发布作品
 router.post('/published',function(req, res, next) {
     publishedBase.create(req.body,function(err,doc){
@@ -23,36 +24,31 @@ router.post('/published',function(req, res, next) {
       }
     })
 });
-
 //查找作品
 router.post('/selectPublished',function(req, res, next) {
-    var userList = []
-    
-    publishedBase.find({},function(err,doc){
+    publishedBase.find().sort({id:-1}).limit(3).exec(function(err,doc){
       if(err){
         res.json({
           code : 500,
           message:'服务器开小差了,请稍后操作!'
         })
       }else if(doc){
-        registeredUser.find({},function(err,docUserList){
-            if(err){
+        registeredUser.find().sort({id:-1}).exec(function(err,docUserList){//查找所以用户
+           if(docUserList){
+              collectionItem.find().sort({id:-1}).exec(function(err,collectionList){//查找收藏作品
                 res.json({
-                  code : 500,
-                  message:'服务器开小差了,请稍后操作!'
+                  code : 200,
+                  list : doc,
+                  userList : docUserList,
+                  collectionList: collectionList
                 })
-            }else if(docUserList){
-                res.json({
-                    code : 200,
-                    list : doc,
-                    userList : docUserList
-                })
-            }else{
-              res.json({
-                code : 400,
-                message:'查询失败!'
+              })
+           }else{
+            res.json({
+              code : 400,
+              message:'查询失败!'
             })
-            }
+           }
         })
       }else{
         res.json({
@@ -83,7 +79,7 @@ router.post('/deletePublished',function(req, res, next) {
       }
     })
 });
-//更新作品
+//点赞作品
 router.post('/updateOnePublished',function(req, res, next) {
     publishedBase.updateOne({id : req.body.id},{$set : {
         "giveALike" : req.body.giveALike
@@ -93,10 +89,10 @@ router.post('/updateOnePublished',function(req, res, next) {
           code : 500,
           message:'服务器开小差了,请稍后操作!'
         })
-      }else if(doc){
+      }else if(doc.nModified>0){
         res.json({
             code : 200,
-            message:'更新成功!'
+            message:'点赞成功!'
         })
       }else{
         res.json({
@@ -105,5 +101,54 @@ router.post('/updateOnePublished',function(req, res, next) {
       })
       }
     })
+});
+//评论作品
+router.post('/commentsWork',function(req, res, next) {
+  publishedBase.updateOne({id : req.body.id},{$set : {
+      "data" : req.body.data, "commentsNum" : req.body.commentsNum
+  }},function(err,doc){
+    if(err){
+      res.json({
+        code : 500,
+        message:'服务器开小差了,请稍后操作!'
+      })
+    }else if(doc.nModified > 0){
+      res.json({
+          code : 200,
+          message:'评论成功!'
+      })
+    }else{
+      res.json({
+        code : 400,
+        message:'缺少参数,评论失败!'
+    })
+    }
+  })
+});
+//多级评论
+router.post('/eveyComments',function(req, res, next) {
+  publishedBase.updateOne({id : req.body.id,"data.data.id":req.body.index},{$set : {
+      "data.$.data.0.replyToComment" : req.body.data,
+      "data.$.data.0.replyToCommentMaxFlag" : req.body.replyToCommentMaxFlag,
+      "data.$.data.0.replyToCommentListFlag" : req.body.replyToCommentListFlag,
+      "data.$.data.0.replyToCommentListT" : req.body.replyToCommentListT,
+  }},function(err,doc){
+    if(err){
+      res.json({
+        code : 500,
+        message:'服务器开小差了,请稍后操作!'
+      })
+    }else if(doc.nModified > 0){
+      res.json({
+          code : 200,
+          message:'评论成功!'
+      })
+    }else{
+      res.json({
+        code : 400,
+        message:'缺少参数,评论失败!'
+    })
+    }
+  })
 });
 module.exports = router;

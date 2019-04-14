@@ -33,7 +33,6 @@ server.use(express.static(path.join(__dirname, 'resourse')));
 server.use('/registered', registered);
 server.use('/published', published);
 server.use('/collection', collection);
-
 //启动及端口
 http.createServer(server).listen(server.get('port'),function(){    
       console.log('Express server listening on port ' + server.get('port'));
