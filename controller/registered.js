@@ -100,6 +100,29 @@ router.post('/selectPerUser', function(req, res, next) {
 });
 //更新用户个人中心
 router.post('/editPerUser', function(req, res, next) {
+  registeredUser.find({nickName : req.body.nickName},function(err,nickName){//判断昵称是否重复
+    if(err){
+      res.json({
+        code : 500,
+        message:'服务器开小差了,请稍后操作!'
+      })
+    }else if(nickName.length !=0){
+      registeredUser.find({userName : req.body.userName},function(err,userNameDoc){
+        if(userNameDoc[0].nickName !=req.body.nickName){
+          res.json({
+            code : 400,
+            message : '该昵称已经被注册,请换一个昵称!'
+          })
+        }else{
+          editM(req,res)
+        }
+      })
+    }else{
+      editM(req,res)
+    }
+  })
+});
+function editM(req,res){
   registeredUser.updateOne({userName : req.body.userName},{$set : {
     "nickName" : req.body.nickName, 
     "img" : req.body.img,
@@ -140,7 +163,7 @@ router.post('/editPerUser', function(req, res, next) {
       })
     }
   })
-});
+}
 //粉丝
 fensi = (req) => {
   var data = {}

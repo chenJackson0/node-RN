@@ -4,7 +4,12 @@ let blogSchema = new mongoose.Schema({
     perImg : {type : String},
     userName : {type : String},
     nickName : {type : String},
-    publicHeadImg : [{img : {type : String}}],
+    publicHeadImg : [
+        {
+            img : {type : String},
+            type : {type : String}
+        }
+    ],
     text : {type : String},
     flag : {type : Boolean},
     butText : {type : String},

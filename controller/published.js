@@ -26,7 +26,7 @@ router.post('/published',function(req, res, next) {
 });
 //查找作品
 router.post('/selectPublished',function(req, res, next) {
-    publishedBase.find().sort({id:-1}).limit(3).exec(function(err,doc){
+    publishedBase.find().sort({id:-1}).exec(function(err,doc){
       if(err){
         res.json({
           code : 500,
