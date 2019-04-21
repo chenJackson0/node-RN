@@ -8,6 +8,9 @@ var database = require('./mongodb/db')
 var registered = require('./controller/registered');
 var published = require('./controller/published');
 var collection = require('./controller/collection');
+var projects = require('./controller/projects')
+var projectCategories = require('./controller/projectCategories')
+var shoppingCart = require('./controller/shoppingCart')
 //添加,导入http模块
 var http=require('http');
 var server = express(); 
@@ -33,6 +36,9 @@ server.use(express.static(path.join(__dirname, 'resourse')));
 server.use('/registered', registered);
 server.use('/published', published);
 server.use('/collection', collection);
+server.use('/projects', projects);
+server.use('/projectCategories', projectCategories);
+server.use('/shoppingCart', shoppingCart);
 //启动及端口
 http.createServer(server).listen(server.get('port'),function(){    
       console.log('Express server listening on port ' + server.get('port'));
