@@ -51,4 +51,33 @@ router.post('/shoppingCart',function(req, res, next) {
         }
     })
 });
+//购物车
+router.post('/getShoppingCart',function(req, res, next) {
+    shoppingCart.find({userName : req.body.userName},function(err,doc){
+        if(err){
+            res.json({
+              code : 500,
+              message:'服务器开小差了,请稍后操作!'
+            })
+        }else if(doc){
+            var number = 0
+            for(var i = 0;i<doc.length;i++){
+                number += doc[i].number
+            }
+            if(number > 99){
+                number = '99+'
+            }
+            res.json({
+                code : 200,
+                cartData : doc,
+                number : number
+              })
+        }else{
+            res.json({
+                code : 400,
+                message:'查询购物车失败!'
+              })
+        }
+    })
+});
 module.exports = router;
